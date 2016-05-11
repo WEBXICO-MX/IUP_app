@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>IUP &#124; Calendario escolar</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/appIUP.css" />
+    </head>
+    <body onload="onLoad()">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <!-- El logotipo y el icono que despliega el menú se agrupan
+                 para mostrarlos mejor en los dispositivos móviles -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Desplegar navegación</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand visible-xs" href="#">Calendario escolar</a>
+            </div>
+
+            <!-- Agrupar los enlaces de navegación, los formularios y cualquier
+                 otro elemento que se pueda ocultar al minimizar la barra -->
+
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                                <li><a href="index.html"><span class="glyphicon glyphicon-globe"></span>&nbsp;&nbsp;Noticias</a></li>
+                                <li><a href="oferta_educativa_1.html" ><span class="glyphicon glyphicon-education"></span>&nbsp;&nbsp;Oferta educativa</a></li>
+                                <li  class="active"><a href="mis_servicios1.html" ><span class="glyphicon glyphicon-briefcase"></span>&nbsp;&nbsp;Mis servicios</a></li>
+                                <li><a href="directorio.html" ><span class=" glyphicon glyphicon-user"></span>&nbsp;&nbsp;Directorio</a></li>
+                                <li><a href="contacto.html" ><span class=" glyphicon glyphicon-phone-alt"></span>&nbsp;&nbsp;Contacto</a></li>
+                                <li class="visible-md visible-lg hidden-xs"><a href="javascript:void(0);" onclick="showConfirm();"><span class="glyphicon glyphicon-log-out"></span>&nbsp;&nbsp;Salir</a></li>
+                            </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row ">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-link btn-lg" id="btn_back" onclick="window.open('mis_servicios1.html', '_self');">
+                        <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Atrás&nbsp;&nbsp;&nbsp;
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-8" id="calendario_escolar">&nbsp;</div>
+                <div class="col-sm-12 col-md-4" id="iconografia">&nbsp;</div>
+            </div>
+        </div>
+        <script src="js/jQuery/jquery-1.12.3.min.js"></script>
+        <script src="js/jQuery/plugins/jQuery-JSONP/jquery.jsonp.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="cordova.js"></script>
+        <script src="PushNotification.js"></script>
+        <script>
+            var ws_rest1 = "http://www.uttab.edu.mx/rest/json/calendario_escolar/get";
+            var ws_rest2 = "http://www.uttab.edu.mx/getCalendarioEscolarIconografia.action";
+            //var senderID_android = "374887891731"; //--> AppITSLVNotificationsPush	
+            var senderID_android = "169163360125"; //--> NotificacionesPushExample
+            //var On3rdPartyServer = "http://www.IUP.edu.mx/AppITSLVNotificationsPush";
+            var On3rdPartyServer = "http://www.uttab.edu.mx/PushNotificationSample";
+            var pushNotification;
+            var d = new Date();
+            var month = new Array("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre");
+            var imgs = new Array();
+            var imgs_iconografia = new Array();
+            var mes_default = month[d.getMonth()];
+            var anio_default = d.getFullYear();
+            var img = mes_default + '_' + anio_default + '.png';
+            var alt = mes_default + '_' + anio_default;
+            var html = '';
+            var html2 = '';
+            var posicion = 0;
+
+            function getPosicion(mtz, mes)
+            {   var pos = 0;
+                $.each(mtz, function (i, e) {
+                    if (e.indexOf(mes) !== -1)
+                    { pos = i;
+                      img = e;
+                      return false;
+                     }    
+                });
+                return pos;
+            }
+
+            function atras()  
+            {
+                var src = "";
+                if (!(posicion === 0))
+                {
+                    posicion--;
+                    src = imgs[posicion];
+                    $("#calendario").attr("src", "http://www.IUP.edu.mx/img/movil/android/calendario_escolar/" + src);
+                }
+            }
+
+            function adelante()
+            {
+                var src2 = "";
+                if (!(posicion === imgs.length - 1))
+                {
+                    posicion++;
+                    src2 = imgs[posicion];
+                    $("#calendario").attr("src", "http://www.IUP.edu.mx/img/movil/android/calendario_escolar/" + src2);
+                }
+
+            }
+            
+            function getCalendarioEscolarIconografia(result)
+            {   $.each(result, function (i, item) {
+                            imgs_iconografia.push(item.ruta);
+                        });
+                posicion = getPosicion(imgs, img);
+                getContentView2();
+            }
+
+            function getContentView1()
+            {   $.jsonp({
+                    url: ws_rest1,
+                    callbackParameter: 'callback',
+                    success: function (data, status) {
+                        $.each(data, function (i, item) {
+                            imgs.push(item.mes);
+                        });
+                        //Llama automaticamente a getCalendarioEscolarIconografia(result) despues de recibir los resultados.                        
+                        $.getJSON("http://www.IUP.edu.mx/getCalendarioEscolarIconografia.action?callback=?");
+                                                
+                    },
+                    error: function () {
+                        navigator.notification.alert(
+                                'La conexión con el servidor no se ha establecido ...', // message
+                                null, // callback
+                                '                IUP', // title
+                                'Aceptar' // buttonName
+                                );
+                    }
+                });
+
+            }
+
+            function getContentView2()
+            {
+                html += '<form>';
+                html += '<button type="button" class="btn btn-info btn-lg hidden-xs" style="float:left;" onclick="atras();">';
+                html += '<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                html += '</button>';
+                html += '<button type="button" class="btn btn-info btn-lg hidden-xs" style="float:right;" onclick="adelante();">';
+                html += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-chevron-right"></span>';
+                html += '</button>';
+                html += '<button type="button" class="btn btn-info btn-xs visible-xs" style="float:left;" onclick="atras();">';
+                html += '<span class="glyphicon glyphicon-chevron-left"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                html += '</button>';
+                html += '<button type="button" class="btn btn-info btn-xs visible-xs" style="float:right;" onclick="adelante();">';
+                html += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="glyphicon glyphicon-chevron-right"></span>';
+                html += '</button>';
+                html += '<br/>';
+                html += ' <br/>';
+                html += '<img src="http://www.IUP.edu.mx/img/movil/android/calendario_escolar/' + img + '" alt="' + alt + '" class="img-responsive" id="calendario" style="margin:0 auto;"/>';
+                html += '<br/>';
+                html += '<br/>';
+                html += '</form>';
+                $("#calendario_escolar").html("");
+                $("#calendario_escolar").append(html);
+                $.each(imgs_iconografia,function(i,item){
+                    html2 += '<img src="http://www.IUP.edu.mx/img/movil/android/calendario_escolar/'+item+'" alt="Iconografia" class="img-responsive" style="margin:0 auto;"/>';
+                });
+                /*html2 += '<img src="http://www.IUP.edu.mx/img/movil/android/calendario_escolar/iconografia.jpg" alt="Iconografia" class="img-responsive"/>';
+                html2 += '<img src="http://www.IUP.edu.mx/img/movil/android/calendario_escolar/iconografia2.jpg" alt="Iconografia" class="img-responsive"/>';
+                html2 += '<img src="http://www.IUP.edu.mx/img/movil/android/calendario_escolar/iconografia3.jpg" alt="Iconografia" class="img-responsive"/>';*/
+                $("#iconografia").html("");
+                $("#iconografia").append(html2);
+                ActivityIndicator.hide();
+            }
+
+            function onLoad() {
+                document.addEventListener("deviceready", onDeviceReady, true);
+            }
+
+            function onDeviceReady()
+            {
+                if (navigator.network.connection.type === Connection.NONE) {
+                    onOffline();
+                } else {
+                    onOnline();
+                }
+
+                document.addEventListener("backbutton", function (e) {
+                    navigator.app.backHistory();
+                }, false);
+
+                try
+                {
+                    pushNotification = window.plugins.pushNotification;
+
+                    if (device.platform === 'android' || device.platform === 'Android' || device.platform === 'amazon-fireos') {
+                        pushNotification.register(successHandler, errorHandler, {"senderID": senderID_android, "ecb": "onNotification"});		// required!
+                    } else {
+                        pushNotification.register(tokenHandler, errorHandler, {"badge": "true", "sound": "true", "alert": "true", "ecb": "onNotificationAPN"});	// required!
+                    }
+                }
+                catch (err)
+                {
+                    txt = "There was an error on this page.\n\n";
+                    txt += "Error description: " + err.message + "\n\n";
+                    navigator.notification.alert(
+                            txt, // message
+                            null, // callback
+                            '                IUP', // title
+                            'Aceptar'                  // buttonName
+                            );
+                }
+            }
+
+            // handle APNS notifications for iOS
+            function onNotificationAPN(e) {
+                if (e.alert) {
+                    // showing an alert also requires the org.apache.cordova.dialogs plugin
+                    navigator.notification.alert(e.alert,null,'                IUP','Aceptar');
+                }
+
+                if (e.badge) {
+                    pushNotification.setApplicationIconBadgeNumber(successHandler, e.badge);
+                }
+            }
+
+            // handle GCM notifications for Android
+            function onNotification(e) {
+                switch (e.event)
+                {
+                    case 'registered':
+                        if (e.regid.length > 0)
+                        {
+                            // Your GCM push server needs to know the regID before it can push to this device
+                            // here is where you might want to send it the regID for later use.
+                            registerOn3rdPartyServer(e.regid);
+
+                        }
+                        break;
+
+                    case 'message':
+
+                        navigator.notification.alert(
+                                e.payload.message,
+                                null,
+                                '                IUP',
+                                'Aceptar'
+                                );
+                        break;
+
+                    case 'error':
+                        navigator.notification.alert(
+                                e.msg,
+                                null,
+                                '                IUP',
+                                'Aceptar'
+                                );
+                        break;
+
+                    default:
+                        navigator.notification.alert(
+                                'Unknown, an event was received and we do not know what it is',
+                                null,
+                                '                IUP',
+                                'Aceptar'
+                                );
+                        break;
+                }
+            }
+
+            function tokenHandler(result) {
+                registerOn3rdPartyServer(result);
+            }
+
+            function successHandler(result) {
+                /*navigator.notification.alert(
+                                result, // message
+                                null, // callback
+                                '                IUP', // title
+                                'Aceptar' // buttonName
+                                );*/
+            }
+
+            function errorHandler(error) {
+                navigator.notification.alert(
+                                error, // message
+                                null, // callback
+                                '                IUP', // title
+                                'Aceptar'// buttonName
+                                );
+            }
+
+            function registerOn3rdPartyServer(registrationId) {
+                if (device.platform === 'android' || device.platform === 'Android' || device.platform === 'amazon-fireos') {
+                    On3rdPartyServer += "/GCMNotification";
+                }
+                else
+                {
+                    On3rdPartyServer += "/APNNotification";
+                }
+                
+                $.ajax({
+                    type: "POST",
+                    url: On3rdPartyServer,
+                    data: {
+                        "shareRegId": "1", "regId": registrationId
+                    },
+                    //url: "http://www.IUP.edu.mx/gcm-rest/registrations",
+                    //data: {
+                    //    "registrationId": registrationId
+                    //},
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    success: function () {
+                        console.log("jQuery Ajax READY FOR NOTIFICATIONS");
+                    },
+                    error: function (e) {
+                        console.log("Unable to register " + JSON.stringify(e));
+                    }
+                });
+            }
+
+            function onOnline() {
+                ActivityIndicator.show("Cargando");
+                getContentView1();
+            }
+
+            function onOffline() {
+                navigator.notification.alert(
+                        'No hay conexión a internet', // message
+                        noHayInternet(), // callback
+                        '                IUP', // title
+                        'Aceptar'                  // buttonName
+                        );
+            }
+
+            function noHayInternet()
+            {
+                $('#calendario_escolar').html('<p>No hay conexión a internet.</p>');
+            }
+
+            function showConfirm() {
+
+                navigator.notification.confirm(
+                        '      ¿Realmente desea salir?', // message
+                        exitFromApp, // callback to invoke with index of button pressed
+                        '                IUP', // title
+                        'Cancelar,Aceptar'         // buttonLabels
+                        );
+
+            }
+
+            function exitFromApp(buttonIndex) {
+                if (buttonIndex === 2) {
+                    navigator.app.exitApp();
+                }
+            }
+        </script>
+    </body>
+</html>
+

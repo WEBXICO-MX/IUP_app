@@ -1,0 +1,63 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:600,400,700);
+/*@import url(http://fonts.googleapis.com/css?family=Open+Sans|Dosis:400,800);*/
+/*@import url(http://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed|Alegreya:700);*/
+@import url(http://fonts.googleapis.com/css?family=Lato:300|Grand+Hotel);
+/*@import url(http://fonts.googleapis.com/css?family=Oswald:700|Droid+Serif:400,700italic);*/
+body {font-family: 'Open Sans' !important;font-style: normal;font-weight: 400;}
+#university_activities div p a img,#university_activity div p img,#carrera div p img {margin:0 auto;}
+#university_activities div p.text-left a img { margin-left: 0;}
+//#university_activities div p,#university_activity div p,#ofertas_empleos div p,#carrera div ul li ul li p {text-align: justify;font-family: 'Open Sans' !important;font-style: normal;font-weight: 400; color:rgb(46,42,38);}
+//#university_activities div h3,#university_activity div h4,#ofertas_empleos div h2,#carrera div h3,#carrera div ul li h4{text-align:justify;/* white-space:pre-wrap; */font-family: 'Open Sans' !important;font-style: normal;font-weight: 400; color:rgb(46,42,38);}
+#university_activities div h1 a{ text-decoration: none;}
+#university_activities div h1 a:link {color:rgb(46,42,38);}      
+#university_activities div h1 a:visited {color:rgb(46,42,38);}  
+#university_activities div h1 a:hover {color:rgb(46,42,38);}  
+#university_activities div h1 a:active {color:rgb(46,42,38);}  
+#university_activities div h2 a{ text-decoration: none;}
+#university_activities div h2 a:link {color:rgb(46,42,38);}      
+#university_activities div h2 a:visited {color:rgb(46,42,38);}  
+#university_activities div h2 a:hover {color:rgb(46,42,38);}  
+#university_activities div h2 a:active {color:rgb(46,42,38);}  
+
+#divisiones div div h5 a{ text-decoration: none;}
+#divisiones div div h5 a:link {color:white;}      
+#divisiones div div h5 a:visited {color:white;}  
+#divisiones div div h5 a:hover {color:white;} 
+#divisiones div div h5 a:active {color:white;} 
+
+#carreras div img { margin: 5px;}
+#carrera div a{ float:left;} 
+#google_maps { width: 100%;height: 413px;margin-bottom: 38px;}
+
+h1 {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 46px;
+    font-size: 46px;
+    margin: 0 0 23px 0;
+}
+h2 {
+    font-family: 'Lato', cursive;
+    font-weight: normal;
+    font-size: 24px;
+    line-height: 23px;
+    margin: 0 0 23px 0;
+}
+h4 {
+    font-family: 'Lato', cursive;
+    font-weight: normal;
+    font-size: 21px;
+    line-height: 23px;
+    margin: 0 0 23px 0;
+}
+p { text-align: justify;
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
+    line-height: 23px;
+    /* margin: 0 0 23px 0; */
+}
+
+#directorio div div p img { margin:0 auto;}
+#directorio div div p  { text-align: left;}
+#contactos div p a img,#contactos div p img {margin:0 auto;}
+.titulos_directorio { background-color: #00AEC7; color: #FCFCFB; padding: 10px;}

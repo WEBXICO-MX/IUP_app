@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>IUP &#124; Mis servicios</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="css/bootstrap.min.css" rel="stylesheet" />
+        <link href="css/appIUP.css" rel="stylesheet" />
+        <style>
+        iframe {
+         background-image: url("img/loading2.gif");   
+            background-repeat: no-repeat;
+            background-position: top;
+        }
+        </style>
+    </head>
+    <body onload="onLoad()">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <!-- El logotipo y el icono que despliega el menú se agrupan
+                 para mostrarlos mejor en los dispositivos móviles -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Desplegar navegación</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand visible-xs" href="mis_servicios.html"><span id="xOpcion">Mis servicios</span></a>
+            </div>
+
+            <!-- Agrupar los enlaces de navegación, los formularios y cualquier
+                 otro elemento que se pueda ocultar al minimizar la barra -->
+
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                                                        <ul class="nav navbar-nav">
+                                <li><a href="index.html"><span class="glyphicon glyphicon-globe"></span>&nbsp;&nbsp;Noticias</a></li>
+                                <li><a href="oferta_educativa_1.html" ><span class="glyphicon glyphicon-education"></span>&nbsp;&nbsp;Oferta educativa</a></li>
+                                <li   class="active"><a href="mis_servicios1.html" ><span class="glyphicon glyphicon-briefcase"></span>&nbsp;&nbsp;Mis servicios</a></li>
+                                <li><a href="directorio.html" ><span class=" glyphicon glyphicon-user"></span>&nbsp;&nbsp;Directorio</a></li>
+                                <li><a href="contacto.html" ><span class=" glyphicon glyphicon-phone-alt"></span>&nbsp;&nbsp;Contacto</a></li>
+                                <li class="visible-md visible-lg hidden-xs"><a href="javascript:void(0);" onclick="showConfirm();"><span class="glyphicon glyphicon-log-out"></span>&nbsp;&nbsp;Salir</a></li>
+                            </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row ">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-link btn-lg" id="btn_back" onclick="window.open('mis_servicios1.html', '_self');" >
+                        <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Atrás&nbsp;&nbsp;&nbsp;
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12" id="ajax_loading"><!--<img src="img/ajax-loading.gif" alt="Ajax loading"/>&nbsp;Cargando login ... --></div>
+                <div class="col-sm-12" id="iframe_loading" style='display: none;'>
+                    <iframe src='about:blank' id="iframe_saiiut" style='border:0; width: 100%; height: 900px;'></iframe>
+                    <iframe src='http://sibisut.utleon.edu.mx/janium-bin/janium_login_opac.pl?bib=ut67' id="iframe_janium" style="display: none;"></iframe>
+                </div>
+            </div>
+        </div>
+        <script src="js/jQuery/jquery-1.12.3.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/appIUP.js"></script>
+        <script src="js/jQuery/plugins/jquery.responsiveiframe.js"></script>
+        <script src="cordova.js"></script>
+        <script src="PushNotification.js"></script>
+        <script>
+        //var senderID_android = "374887891731"; //--> AppITSLVNotificationsPush	
+        var senderID_android = "169163360125"; //--> NotificacionesPushExample
+        //var On3rdPartyServer = "http://www.IUP.edu.mx/AppITSLVNotificationsPush";
+        var On3rdPartyServer = "http://www.uttab.edu.mx/PushNotificationSample";
+        var pushNotification;
+        var mtz = getParameters();
+        var opcion = mtz['d'];
+        var urlLoginJanium = "http://sibisut.utleon.edu.mx/janium-bin/login_informacion_usuario.pl?Id=";
+        var parametroJanium = "";
+        
+        function onLoad() {
+            document.addEventListener("deviceready", onDeviceReady, false);
+        }
+
+        function onDeviceReady()  {
+            if(opcion==="Biblioteca")
+            {
+            $("#iframe_janium").load(function () {
+                    //alert(this.contentWindow.location.substring(this.contentWindow.location.indexOf("?Id="), this.contentWindow.location.length));
+                    //alert(this.contentWindow.location.indexOf("?Id="));
+                    //alert(this.contentWindow.location);
+                    var temp = String(this.contentWindow.location);
+                    //alert("temp.indexOf('=') :"+temp.indexOf("=")+", temp.length = "+temp.length);
+                    parametroJanium =temp.substring(temp.indexOf("=") + 1, temp.length);
+                    urlLoginJanium += parametroJanium;
+                    $("#iframe_saiiut").attr("src",urlLoginJanium);
+                    ActivityIndicator.hide();
+                });
+            }
+
+            if (navigator.network.connection.type === Connection.NONE) {
+                onOffline();
+              } else {
+                onOnline();
+              }
+            
+            document.addEventListener("backbutton", function (e) {
+                navigator.app.backHistory();
+            }, false);
+            
+            try
+            {
+                pushNotification = window.plugins.pushNotification;
+
+                if (device.platform === 'android' || device.platform === 'Android' || device.platform === 'amazon-fireos') {
+                    pushNotification.register(successHandler, errorHandler, {"senderID": senderID_android, "ecb": "onNotification"});		// required!
+                } else {
+                    pushNotification.register(tokenHandler, errorHandler, {"badge": "true", "sound": "true", "alert": "true", "ecb": "onNotificationAPN"});	// required!
+                }
+            }
+            catch (err)
+            {
+                txt = "There was an error on this page.\n\n";
+                txt += "Error description: " + err.message + "\n\n";
+                navigator.notification.alert(
+                        txt, // message
+                        null, // callback
+                        '                IUP', // title
+                        'Aceptar'                  // buttonName
+                        );
+            }
+
+        }
+        
+                                // handle APNS notifications for iOS
+        function onNotificationAPN(e) {
+            if (e.alert) {
+                // showing an alert also requires the org.apache.cordova.dialogs plugin
+                navigator.notification.alert(e.alert,null,'                IUP','Aceptar');
+            }
+
+            if (e.badge) {
+                pushNotification.setApplicationIconBadgeNumber(successHandler, e.badge);
+            }
+        }
+
+        // handle GCM notifications for Android
+        function onNotification(e) {
+            switch (e.event)
+            {
+                case 'registered':
+                    if (e.regid.length > 0)
+                    {
+                        // Your GCM push server needs to know the regID before it can push to this device
+                        // here is where you might want to send it the regID for later use.
+                        registerOn3rdPartyServer(e.regid);
+                    }
+                    break;
+
+                case 'message':
+
+                    navigator.notification.alert(
+                            e.payload.message,
+                            null,
+                            '                IUP',
+                            'Aceptar'
+                            );
+                    break;
+
+                case 'error':
+                    navigator.notification.alert(
+                            e.msg,
+                            null,
+                            '                IUP',
+                            'Aceptar'
+                            );
+                    break;
+
+                default:
+                    navigator.notification.alert(
+                            'Unknown, an event was received and we do not know what it is',
+                            null,
+                            '                IUP',
+                            'Aceptar'
+                            );
+                    break;
+            }
+        }
+
+        function tokenHandler(result) {
+            registerOn3rdPartyServer(result);
+        }
+
+        function successHandler(result) {
+            /*navigator.notification.alert(
+                                result, // message
+                                null, // callback
+                                '                IUP', // title
+                                'Aceptar' // buttonName
+                                );*/
+        }
+
+        function errorHandler(error) {
+            navigator.notification.alert(
+                                error, // message
+                                null, // callback
+                                '                IUP', // title
+                                'Aceptar'// buttonName
+                                );
+        }
+
+        function registerOn3rdPartyServer(registrationId) {
+            
+            if (device.platform === 'android' || device.platform === 'Android' || device.platform === 'amazon-fireos') {
+                On3rdPartyServer += "/GCMNotification";
+            }
+            else
+            {
+                On3rdPartyServer += "/APNNotification";
+            }
+                
+            $.ajax({
+                type: "POST",
+                url: On3rdPartyServer,
+                data: {
+                    "shareRegId": "1", "regId": registrationId
+                },
+                //url: "http://www.IUP.edu.mx/gcm-rest/registrations",
+                //data: {
+                //    "registrationId": registrationId
+                //},
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                success: function () {
+                    console.log("jQuery Ajax READY FOR NOTIFICATIONS");
+                },
+                error: function (e) {
+                    console.log("Unable to register " + JSON.stringify(e));
+                }
+            });
+        }
+        
+        function onOnline() {
+            ActivityIndicator.show("Cargando");
+            $("#xOpcion").html(opcion);
+            $("#ajax_loading").css("display", "none");
+            $("#iframe_loading").css("display", "block");
+            
+            if(!(opcion==="Biblioteca"))
+            {  
+                $("#iframe_saiiut").attr("src", "http://saiiut.IUP.edu.mx/jsp/app/login.jsp?d=" + opcion);
+            }
+            
+            $(function () {
+                $('iframe').responsiveIframe({xdomain: '*'});
+            });
+            ActivityIndicator.hide();
+        }
+
+        function onOffline() {
+            navigator.notification.alert(
+                    'No hay conexión a internet', // message
+                    noHayInternet(), // callback
+                    '                IUP', // title
+                    'Aceptar'                  // buttonName
+                    );
+        }
+        
+        function noHayInternet()
+        {
+            //$('#ajax_loading').html('<p>No hay conexión a internet.</p>');
+            navigator.notification.alert(
+                'No hay conexión a internet',  // message
+                null,         // callback
+                'Sin conexión',            // title
+                'Aceptar'                  // buttonName
+            );
+        }
+        
+        function showConfirm() {
+
+            navigator.notification.confirm(
+                    '      ¿Realmente desea salir?', // message
+                    exitFromApp, // callback to invoke with index of button pressed
+                    '                IUP', // title
+                    'Cancelar,Aceptar'         // buttonLabels
+                    );
+
+        }
+
+        function exitFromApp(buttonIndex) {
+            if (buttonIndex === 2) {
+                navigator.app.exitApp();
+            }
+        }
+        </script>
+    </body>
+</html>

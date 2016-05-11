@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>IUP &#124; Oferta educativa - plan de estudios</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="css/bootstrap.min.css" rel="stylesheet" />
+        <link href="css/appIUP.css" rel="stylesheet" />
+    </head>
+    <body onload="onLoad()">        
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+                        <!-- El logoITSLV y el icono que despliega el menú se agrupan
+                             para mostrarlos mejor en los dispositivos móviles -->
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse"
+                                    data-target=".navbar-ex1-collapse">
+                                <span class="sr-only">Desplegar navegación</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <a class="navbar-brand visible-xs" href="#">Oferta educativa</a>
+                        </div>
+
+                        <!-- Agrupar los enlaces de navegación, los formularios y cualquier
+                             otro elemento que se pueda ocultar al minimizar la barra -->
+
+                        <div class="collapse navbar-collapse navbar-ex1-collapse">
+                                                                                                      <ul class="nav navbar-nav">
+                                <li><a href="index.html"><span class="glyphicon glyphicon-globe"></span>&nbsp;&nbsp;Noticias</a></li>
+                                <li   class="active"><a href="oferta_educativa_1.html" ><span class="glyphicon glyphicon-education"></span>&nbsp;&nbsp;Oferta educativa</a></li>
+                                <li><a href="mis_servicios1.html" ><span class="glyphicon glyphicon-briefcase"></span>&nbsp;&nbsp;Mis servicios</a></li>
+                                <li><a href="directorio.html" ><span class=" glyphicon glyphicon-user"></span>&nbsp;&nbsp;Directorio</a></li>
+                                <li><a href="contacto.html" ><span class=" glyphicon glyphicon-phone-alt"></span>&nbsp;&nbsp;Contacto</a></li>
+                                <li class="visible-md visible-lg hidden-xs"><a href="javascript:void(0);" onclick="showConfirm();"><span class="glyphicon glyphicon-log-out"></span>&nbsp;&nbsp;Salir</a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+            <div class="row ">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-link btn-lg" id="btn_back">
+                        <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Atrás&nbsp;&nbsp;&nbsp;
+                    </button>
+                </div>
+            </div>
+            <div class="row" id="plan_estudios">
+                <div class="col-sm-12"><!--<img src="img/ajax-loading.gif" alt="Ajax loading"/>&nbsp;Cargando plan de estudio ...--></div>
+            </div>
+        </div>
+        <form id="frmTemp"></form>
+        <script src="js/jQuery/jquery-1.12.3.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/appITSLV.js"></script>
+        <script src="js/jQuery/plugins/jQuery-JSONP/jquery.jsonp.js"></script>
+        <script src="cordova.js"></script>
+        <script src="PushNotification.js"></script>
+        <script>
+                                    var ws_rest2 = "http://www.uttab.edu.mx/ITSLV_api/rest/materias";
+                                    var ws_rest3 = "http://www.uttab.edu.mx/ITSLV_api/rest/carreras";
+                                    //var senderID_android = "374887891731"; //--> AppITSLVNotificationsPush    
+                                    var senderID_android = "169163360125"; //--> NotificacionesPushExample
+                                    //var On3rdPartyServer = "http://www.IUP.edu.mx/AppITSLVNotificationsPush";
+                                    var On3rdPartyServer = "http://www.uttab.edu.mx/PushNotificationSample";
+                                    var pushNotification;
+
+                                    var nombre_carrera = "";
+                                    var mtz_labels_itslv = ["Primer semestre", "Segundo semestre", "Tercer semestre", "Cuarto semestre", "Quinto semestre", "Sexto semestre", "Septimo semestre", "Octavo semestre"];
+
+                                    var mtz = getParameters();
+                                    var mtz_id_collapse = new Array();
+                                    var mtz_id_accordion = new Array();
+                                    var mtz_primero_noveno = new Array();
+
+                                    function getMateriasPrimeroNoveno(param)
+                                    {
+                                        var tmp1 = "";
+                                        if (param < 0) {
+                                            getContentViewITSLV();
+                                            return -1;
+                                        }
+                                        else {
+                                            $.jsonp({
+                                                url: ws_rest2 + '/' + mtz['cve_carrera'] + '/' + (mtz_labels_itslv.length - param),
+                                                callbackParameter: 'callback',
+                                                success: function (data, status) {
+                                                    tmp1 += "<ul>";
+                                                    $.each(data, function (i, item) {
+                                                        tmp1 += "<li>";
+                                                        tmp1 += data[i].nombre;
+                                                        tmp1 += "</li>";
+                                                    });
+                                                    tmp1 += "</ul>";
+                                                    mtz_primero_noveno.push(tmp1);
+                                                    tmp1 = "";
+                                                    param = param - 1;
+                                                    getMateriasPrimeroNoveno(param);
+                                                }
+                                            });
+                                        }
+
+
+                                    }
+
+                                    function addingAjaxEvent(mtz)
+                                    {
+
+                                        var myID = "";
+                                        var str = "";
+                                        var tmp = new Array();
+
+                                        for (var x = 0; x < mtz.length; x++)
+                                        {
+                                            $('#' + mtz[x]).on('shown.bs.collapse', function () {
+                                                //$("#" + this.id + " .panel-body p").html($("#hd_" + this.id).val());
+                                                myID = this.id;
+                                                str = $("#hd_" + myID).val();
+                                                tmp = str.split("|");
+                                                getMateriasAjax(ws_rest2 + '/' + tmp[0] + '/' + tmp[1], myID);
+
+                                            });
+                                        }
+                                    }
+
+                                    function addingToggleChevron(mtz2)
+                                    {
+                                        for (var z = 0; z < mtz2.length; z++)
+                                        {
+                                            $('#' + mtz2[z]).on('hidden.bs.collapse', toggleChevron);
+                                            $('#' + mtz2[z]).on('shown.bs.collapse', toggleChevron);
+                                        }
+                                    }
+
+                                    function getMateriasAjax(url, id_destino)
+                                    {
+                                        $.jsonp({
+                                            url: url,
+                                            callbackParameter: 'callback',
+                                            success: function (data, status) {
+                                                var html1 = '<ul>';
+                                                $("#" + id_destino + " .panel-body p").html("");
+                                                $.each(data, function (i, item)
+                                                {
+                                                    html1 += '<li>' + data[i].nombre + '</li>';
+                                                });
+                                                html1 += '</ul>';
+                                                $("#" + id_destino + " .panel-body ").html(html1);
+                                            },
+                                            error: function () {
+                                                $("#" + id_destino + " .panel-body ").append('<p>La conexión con el servidor no se ha establecido ...</p>');
+                                            }
+                                        });
+                                    }
+
+                                    function getContentViewITSLV()
+                                    {
+                                        var html2 = '';
+                                        var count2 = 1;
+                                        $('#plan_estudios').html("");
+                                        $('#plan_estudios').html("<div class=\"col-sm-12\"><h2>" + nombre_carrera + "</h2></div>");
+
+                                        html2 += '<div class="col-sm-12">';
+                                        html2 += '<div class="panel-group" id="accordion">';
+
+                                        $.each(mtz_labels_itslv, function (i, item) {
+                                            html2 += '<div class="panel panel-success">';
+                                            html2 += '<div class="panel-heading">';
+                                            html2 += '<h4 class="panel-title">';
+                                            html2 += '<a data-toggle="collapse" data-parent="#accordion" href="#collapse' + count2 + '">' + item + '</a>';
+                                            html2 += '<i class="indicator glyphicon glyphicon glyphicon-chevron-down  pull-right"></i>';
+                                            html2 += '</h4>';
+                                            html2 += '</div>';
+                                            html2 += '<div id="collapse' + count2 + '" class="panel-collapse collapse ' + (count2 === 1 ? 'in' : '') + '">';
+                                            //html2 += '<div id="collapse' + count2 + '" class="panel-collapse collapse">';
+                                            html2 += '<div class="panel-body">';
+                                            //html2 += '<p>' + mtz_primero_noveno[i] + '</p>';
+                                            html2 += mtz_primero_noveno[i];
+                                            html2 += '</div>';
+                                            html2 += '</div>';
+                                            html2 += '</div>';
+                                            count2++;
+                                        });
+                                        html2 += '</div>';
+                                        html2 += '</div>';
+
+                                        $('#plan_estudios').append(html2);
+                                        $('#accordion').on('hidden.bs.collapse', toggleChevron);
+                                        $('#accordion').on('shown.bs.collapse', toggleChevron);
+                                        //addingAjaxEvent(mtz_id_collapse);
+                                        //addingToggleChevron(mtz_id_accordion);
+                                    }
+
+                                    function getContentView()
+                                    {
+                                        $("#btn_back").click(function () {
+                                            parent.history.back();
+                                            return false;
+                                        });
+
+                                        $.jsonp({
+                                            url: ws_rest3 + '/' + mtz['cve_carrera'],
+                                            callbackParameter: 'callback',
+                                            success: function (data, status) {
+                                                nombre_carrera = data.nombre;
+                                                getMateriasPrimeroNoveno(mtz_labels_itslv.length - 1);
+                                                ActivityIndicator.hide();
+                                            }
+                                        });
+                                    }
+
+                                    function onLoad() {
+                                        document.addEventListener("deviceready", onDeviceReady, true);
+                                    }
+
+                                    function onDeviceReady()
+                                    {
+                                        if (navigator.network.connection.type === Connection.NONE) {
+                                            onOffline();
+                                        } else {
+                                            onOnline();
+                                        }
+
+                                        document.addEventListener("backbutton", function (e) {
+                                            navigator.app.backHistory();
+                                        }, false);
+
+                                        try
+                                        {
+                                            pushNotification = window.plugins.pushNotification;
+
+                                            if (device.platform === 'android' || device.platform === 'Android' || device.platform === 'amazon-fireos') {
+                                                pushNotification.register(successHandler, errorHandler, {"senderID": senderID_android, "ecb": "onNotification"});       // required!
+                                            } else {
+                                                pushNotification.register(tokenHandler, errorHandler, {"badge": "true", "sound": "true", "alert": "true", "ecb": "onNotificationAPN"}); // required!
+                                            }
+                                        }
+                                        catch (err)
+                                        {
+                                            txt = "There was an error on this page.\n\n";
+                                            txt += "Error description: " + err.message + "\n\n";
+                                            navigator.notification.alert(
+                                                    txt, // message
+                                                    null, // callback
+                                                    '                IUP', // title
+                                                    'Aceptar'                  // buttonName
+                                                    );
+                                        }
+                                    }
+
+                                    // handle APNS notifications for iOS
+                                    function onNotificationAPN(e) {
+                                        if (e.alert) {
+                                            // showing an alert also requires the org.apache.cordova.dialogs plugin
+                                            navigator.notification.alert(e.alert, null, '                IUP', 'Aceptar');
+                                        }
+
+                                        if (e.badge) {
+                                            pushNotification.setApplicationIconBadgeNumber(successHandler, e.badge);
+                                        }
+                                    }
+
+                                    // handle GCM notifications for Android
+                                    function onNotification(e) {
+                                        switch (e.event)
+                                        {
+                                            case 'registered':
+                                                if (e.regid.length > 0)
+                                                {
+                                                    // Your GCM push server needs to know the regID before it can push to this device
+                                                    // here is where you might want to send it the regID for later use.
+                                                    registerOn3rdPartyServer(e.regid);
+                                                }
+                                                break;
+
+                                            case 'message':
+
+                                                navigator.notification.alert(
+                                                        e.payload.message,
+                                                        null,
+                                                        '                IUP',
+                                                        'Aceptar'
+                                                        );
+                                                break;
+
+                                            case 'error':
+                                                navigator.notification.alert(
+                                                        e.msg,
+                                                        null,
+                                                        '                IUP',
+                                                        'Aceptar'
+                                                        );
+                                                break;
+
+                                            default:
+                                                navigator.notification.alert(
+                                                        'Unknown, an event was received and we do not know what it is',
+                                                        null,
+                                                        '                IUP',
+                                                        'Aceptar'
+                                                        );
+                                                break;
+                                        }
+                                    }
+
+                                    function tokenHandler(result) {
+                                        registerOn3rdPartyServer(result);
+                                    }
+
+                                    function successHandler(result) {
+                                        /*navigator.notification.alert(
+                                         result, // message
+                                         null, // callback
+                                         '                IUP', // title
+                                         'Aceptar' // buttonName
+                                         );*/
+                                    }
+
+                                    function errorHandler(error) {
+                                        navigator.notification.alert(
+                                                error, // message
+                                                null, // callback
+                                                '                IUP', // title
+                                                'Aceptar'// buttonName
+                                                );
+                                    }
+
+                                    function registerOn3rdPartyServer(registrationId) {
+
+                                        if (device.platform === 'android' || device.platform === 'Android' || device.platform === 'amazon-fireos') {
+                                            On3rdPartyServer += "/GCMNotification";
+                                        }
+                                        else
+                                        {
+                                            On3rdPartyServer += "/APNNotification";
+                                        }
+
+                                        $.ajax({
+                                            type: "POST",
+                                            url: On3rdPartyServer,
+                                            data: {
+                                                "shareRegId": "1", "regId": registrationId
+                                            },
+                                            //url: "http://www.IUP.edu.mx/gcm-rest/registrations",
+                                            //data: {
+                                            //    "registrationId": registrationId
+                                            //},
+                                            headers: {
+                                                "Content-Type": "application/x-www-form-urlencoded"
+                                            },
+                                            success: function () {
+                                                console.log("jQuery Ajax READY FOR NOTIFICATIONS");
+                                            },
+                                            error: function (e) {
+                                                console.log("Unable to register " + JSON.stringify(e));
+                                            }
+                                        });
+                                    }
+
+                                    function onOnline() {
+                                        ActivityIndicator.show("Cargando");
+                                        getContentView();
+                                    }
+
+                                    function onOffline() {
+                                        navigator.notification.alert(
+                                                'No hay conexión a internet', // message
+                                                noHayInternet(), // callback
+                                                '                IUP', // title
+                                                'Aceptar'                  // buttonName
+                                                );
+                                    }
+
+                                    function noHayInternet()
+                                    {
+                                        $('#plan_estudios').html('<p>No hay conexión a internet.</p>');
+                                    }
+
+                                    function showConfirm() {
+
+                                        navigator.notification.confirm(
+                                                '      ¿Realmente desea salir?', // message
+                                                exitFromApp, // callback to invoke with index of button pressed
+                                                '                IUP', // title
+                                                'Cancelar,Aceptar'         // buttonLabels
+                                                );
+
+                                    }
+
+                                    function exitFromApp(buttonIndex) {
+                                        if (buttonIndex === 2) {
+                                            navigator.app.exitApp();
+                                        }
+                                    }
+        </script>
+    </body>
+</html>
+
