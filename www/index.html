@@ -51,7 +51,7 @@
         <script src="cordova.js"></script>
         <script src="PushNotification.js"></script>
         <script>
-                                    var ws_rest1 = "http://www.uttab.edu.mx/IUP_api/rest/actividadesuniversitarias";
+                                    var ws_rest1 = "http://www.uttab.edu.mx/ITSLV_api/rest/actividadesuniversitarias";
                                     //var senderID_android = "374887891731"; //--> AppIUPNotificationsPush    
                                     var senderID_android = "169163360125"; //--> NotificacionesPushExample
                                     //var On3rdPartyServer = "http://www.uttab.edu.mx/AppIUPNotificationsPush";
@@ -70,7 +70,7 @@
                                                 var count = 1;
                                                 $.each(data, function (i, item) {
                                                     html += '<div class="col-sm-6 col-md-4 col-lg-3">';
-                                                    html += '<p><a href="actividad_universitaria_id.html?id=' + data[i].id + '"><img src="http://www.uttab.edu.mx/IUP_api/resources/' + data[i].img + ' " class="img-responsive"/></a></p>';
+                                                    html += '<p><a href="actividad_universitaria_id.html?id=' + data[i].id + '"><img src="http://www.uttab.edu.mx/ITSLV_api/resources/' + data[i].img + ' " class="img-responsive"/></a></p>';
                                                     html += '<h2><a href="actividad_universitaria_id.html?id=' + data[i].id + '">' + data[i].nombre + '</a></h2>';
                                                     html += '<p>' + data[i].texto_previo + '</p>';
                                                     //html += '<p class="text-left"><a href="actividad_universitaria_id.html?id=' + data[i].id + '"><img src="img/btn_leer_mas.png" alt="Leer más" class="img-responsive"/></a></p>';
